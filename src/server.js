@@ -29,7 +29,10 @@ app.get('/getpersons', (req, res) => {
     let returnData = {
         max: 0,
         remain: 0,
-        data: []
+        data: {
+            remain: [],
+            all: []
+        }
     }
 
     connection.query(`SELECT * FROM persons`, (err, data) => {
@@ -47,7 +50,7 @@ app.get('/getpersons', (req, res) => {
                 })
             } else {
                 returnData.max = data.length
-                returnData.data = data
+                returnData.data.all = data
 
                 connection.query(`SELECT * FROM persons WHERE is_picked_up = 0`, (err, data) => {
                     if(err) {
@@ -64,7 +67,7 @@ app.get('/getpersons', (req, res) => {
                             })
                         } else {
                             returnData.remain = data.length
-                            // returnData.data = data
+                            returnData.data.remain = data
 
                             res.json({
                                 code: '00200',
