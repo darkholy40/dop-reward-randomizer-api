@@ -88,7 +88,7 @@ app.get('/getawardslist', (req, res) => {
         }
     }
 
-    connection.query(`SELECT persons.fullname, persons.award_id, awards.name FROM persons JOIN awards ON persons.award_id = awards.id where award_id > 0 ORDER BY persons.award_id ASC`, (err, data) => {
+    connection.query(`SELECT persons.fullname, persons.award_id, awards.name FROM persons JOIN awards ON persons.award_id = awards.id where award_id > 0 ORDER BY persons.award_id DESC`, (err, data) => {
         if(err) {
             console.log(err)
             res.json({
