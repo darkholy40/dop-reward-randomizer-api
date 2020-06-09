@@ -26,8 +26,14 @@ setInterval(() => {
     })
 }, 30000)
 
-app.get('/getallagents', (req, res) => {
-    connection.query(`SELECT * FROM agents ORDER BY agents.rank_order ASC`, (err, data) => {
+app.get('/getpersons', (req, res) => {
+    let returnData = {
+        max: 0,
+        remain: 0,
+        data: []
+    }
+
+    connection.query(`SELECT * FROM persons`, (err, data) => {
         if(err) {
             console.log(err)
             res.json({
@@ -38,33 +44,113 @@ app.get('/getallagents', (req, res) => {
             if(data.length === 0) {
                 res.json({
                     code: '00404',
-                    message: 'ไม่พบข้อมูล' // Authen ไม่ผ่าน
+                    message: 'ไม่พบข้อมูล' // ไม่พบข้อมูล
                 })
             } else {
-                let returnData = []
+                returnData.max = data.length
+                returnData.data = data
 
-                data.map((item, index) => {
-                    returnData.push({
-                        id: item.id,
-                        username: item.username,
-                        position: item.position,
-                        fullname: `${item.rank} ${item.name} ${item.lastname}`,
-                        inActive: item.token !== '' ? true : false,
-                        token: item.token
-                    })
+                connection.query(`SELECT * FROM persons WHERE is_picked_up = 0`, (err, data) => {
+                    if(err) {
+                        console.log(err)
+                        res.json({
+                            code: '00401',
+                            message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
+                        })
+                    } else {
+                        if(data.length === 0) {
+                            res.json({
+                                code: '00404',
+                                message: 'ไม่พบข้อมูล' // ไม่พบข้อมูล
+                            })
+                        } else {
+                            returnData.remain = data.length
+                            // returnData.data = data
 
-                    return 0
-                })
-
-                res.json({
-                    code: '00200',
-                    data: returnData // Authen ผ่าน
+                            res.json({
+                                code: '00200',
+                                data: returnData
+                            })
+                        }
+                    }
                 })
             }
         }
     })
 })
 
+app.get('/getawardslist', (req, res) => {
+    let returnData = {
+        max: 0,
+        remain: 0,
+        data: {
+            awards_remain: [],
+            persons_whom_are_picked_up: []
+        }
+    }
+
+    connection.query(`SELECT persons.fullname, persons.award_id, awards.name FROM persons JOIN awards ON persons.award_id = awards.id where award_id > 0 ORDER BY persons.award_id ASC`, (err, data) => {
+        if(err) {
+            console.log(err)
+            res.json({
+                code: '00401',
+                message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
+            })
+        } else {
+            returnData.data.persons_whom_are_picked_up = data
+            returnData.max = data.length
+
+            // รางวัลที่รอการจับ
+            connection.query(`SELECT * FROM awards WHERE id NOT IN (SELECT award_id FROM persons where award_id > 0)`, (err, data) => {
+                if(err) {
+                    console.log(err)
+                    res.json({
+                        code: '00401',
+                        message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
+                    })
+                } else {
+                    returnData.remain = data.length
+                    returnData.data.awards_remain = data
+                    returnData.max = returnData.max + data.length
+
+                    res.json({
+                        code: '00200',
+                        data: returnData
+                    })
+                }
+            })
+        }
+    })
+})
+
+app.post('/save/pickedup-person', (req, res) => {
+    const getAwardId = req.body.awardId
+    const getPersonId = req.body.personId
+
+    connection.query(`UPDATE persons SET is_picked_up = 1, award_id = ${getAwardId} WHERE persons.id = ${getPersonId}`, (err, data) => {
+        if(err) {
+            console.log(err)
+            res.json({
+                code: '00401',
+                message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
+            })
+        } else {
+            if(data.length === 0) {
+                res.json({
+                    code: '00404',
+                    message: 'ไม่พบข้อมูล' // ไม่พบข้อมูล
+                })
+            } else {
+                res.json({
+                    code: '00200',
+                    data: data
+                })
+            }
+        }
+    })
+})
+
+// ================================================================================================================================ //
 app.post('/authenticate', (req, res) => {
     const getUsername = req.body.username
     // const getPassword = req.body.password
