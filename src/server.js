@@ -43,40 +43,26 @@ app.get('/getpersons', (req, res) => {
                 message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
             })
         } else {
-            if(data.length === 0) {
-                res.json({
-                    code: '00404',
-                    message: 'ไม่พบข้อมูล' // ไม่พบข้อมูล
-                })
-            } else {
-                returnData.max = data.length
-                returnData.data.all = data
+            returnData.max = data.length
+            returnData.data.all = data
 
-                connection.query(`SELECT * FROM persons WHERE is_picked_up = 0`, (err, data) => {
-                    if(err) {
-                        console.log(err)
-                        res.json({
-                            code: '00401',
-                            message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
-                        })
-                    } else {
-                        if(data.length === 0) {
-                            res.json({
-                                code: '00404',
-                                message: 'ไม่พบข้อมูล' // ไม่พบข้อมูล
-                            })
-                        } else {
-                            returnData.remain = data.length
-                            returnData.data.remain = data
+            connection.query(`SELECT * FROM persons WHERE is_picked_up = 0`, (err, data) => {
+                if(err) {
+                    console.log(err)
+                    res.json({
+                        code: '00401',
+                        message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
+                    })
+                } else {
+                    returnData.remain = data.length
+                    returnData.data.remain = data
 
-                            res.json({
-                                code: '00200',
-                                data: returnData
-                            })
-                        }
-                    }
-                })
-            }
+                    res.json({
+                        code: '00200',
+                        data: returnData
+                    })
+                }
+            })
         }
     })
 })
@@ -140,7 +126,7 @@ app.post('/save/pickedup-person', (req, res) => {
             if(data.length === 0) {
                 res.json({
                     code: '00404',
-                    message: 'ไม่พบข้อมูล' // ไม่พบข้อมูล
+                    message: 'บันทึกไม่สำเร็จ' // ไม่มีการบันทึกข้อมูลเกิดขึ้น / บันทึกข้อมูลไม่ได้
                 })
             } else {
                 res.json({
