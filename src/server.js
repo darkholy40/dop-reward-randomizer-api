@@ -77,7 +77,7 @@ app.get('/getawardslist', (req, res) => {
         }
     }
 
-    connection.query(`SELECT persons.fullname, persons.award_id, awards.name FROM persons JOIN awards ON persons.award_id = awards.id where award_id > 0 ORDER BY persons.award_id DESC`, (err, data) => {
+    connection.query(`SELECT persons.id as person_id, persons.fullname as person_fullname, persons.award_id, awards.name as award_name FROM persons JOIN awards ON persons.award_id = awards.id where award_id > 0 ORDER BY persons.updated_date DESC`, (err, data) => {
         if(err) {
             console.log(err)
             res.json({
@@ -116,6 +116,33 @@ app.post('/save/pickedup-person', (req, res) => {
     const getPersonId = req.body.personId
 
     connection.query(`UPDATE persons SET is_picked_up = 1, award_id = ${getAwardId} WHERE persons.id = ${getPersonId}`, (err, data) => {
+        if(err) {
+            console.log(err)
+            res.json({
+                code: '00401',
+                message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
+            })
+        } else {
+            if(data.length === 0) {
+                res.json({
+                    code: '00404',
+                    message: 'บันทึกไม่สำเร็จ' // ไม่มีการบันทึกข้อมูลเกิดขึ้น / บันทึกข้อมูลไม่ได้
+                })
+            } else {
+                res.json({
+                    code: '00200',
+                    data: data
+                })
+            }
+        }
+    })
+})
+
+app.post('/save/disqualification', (req, res) => {
+    const getAwardId = req.body.awardId
+    const getPersonId = req.body.personId
+
+    connection.query(`UPDATE persons SET award_id = 0 WHERE persons.id = ${getPersonId} AND award_id = ${getAwardId}`, (err, data) => {
         if(err) {
             console.log(err)
             res.json({
