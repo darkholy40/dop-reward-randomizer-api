@@ -56,7 +56,7 @@ app.get('/getpersons', (req, res) => {
             returnData.amount.all_max = data.length
             returnData.data.all_max = data
 
-            connection.query(`SELECT * FROM persons WHERE award_id_bonus = 0`, (err, data) => {
+            connection.query(`SELECT * FROM persons WHERE is_picked_up_bonus = 0`, (err, data) => {
                 if(err) {
                     console.log(err)
                     res.json({
