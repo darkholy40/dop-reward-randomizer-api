@@ -262,7 +262,6 @@ app.post('/save/disqualification', (req, res) => {
     }
 
     connection.query(`UPDATE persons SET ${fieldname} = 0 WHERE persons.id = ${getPersonId} AND ${fieldname} = ${getAwardId}`, (err, data) => {
-        console.log(`UPDATE persons SET ${fieldname} = 0 WHERE persons.id = ${getPersonId} AND ${fieldname} = ${getAwardId}`)
         if(err) {
             console.log(err)
             res.json({
