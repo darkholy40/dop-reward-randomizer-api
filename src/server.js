@@ -239,14 +239,13 @@ app.post('/save/status/active', (req, res) => {
                         if(err) {
                             console.log(err)
                         } else {
-                            console.log(data)
+                            console.log(`UPDATE status SET active = 0, randomzing_index = 0, fullname = '', rank_level = '' WHERE id = 1`)
                         }
                     })
                 }, 5000)
 
                 res.json({
-                    code: '00200',
-                    data: data
+                    code: '00200' // Active is "true" right now, but it will be set to "false" after 5 seconds from now.
                 })
             }
         }
