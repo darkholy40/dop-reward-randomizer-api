@@ -234,6 +234,16 @@ app.post('/save/status/active', (req, res) => {
                     message: 'บันทึกไม่สำเร็จ' // ไม่มีการบันทึกข้อมูลเกิดขึ้น / บันทึกข้อมูลไม่ได้
                 })
             } else {
+                setTimeout(() => {
+                    connection.query(`UPDATE status SET active = 0, randomzing_index = 0, fullname = '', rank_level = '' WHERE id = 1`, (err, data) => {
+                        if(err) {
+                            console.log(err)
+                        } else {
+                            console.log(data)
+                        }
+                    })
+                }, 5000)
+
                 res.json({
                     code: '00200',
                     data: data
