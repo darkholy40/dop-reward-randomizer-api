@@ -196,7 +196,53 @@ app.get('/getawardslist', (req, res) => {
     })
 })
 
-app.post('/save/pickedup-person', (req, res) => {
+app.get('/get/activestatus', (req, res) => {
+    connection.query(`SELECT status.active, status.randomzing_index, status.rank_level FROM status WHERE status.id = 1`, (err, data) => {
+        if(err) {
+            console.log(err)
+            res.json({
+                code: '00401',
+                message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
+            })
+        } else {
+            res.json({
+                code: '00200',
+                data: data
+            })
+        }
+    })
+})
+
+
+app.post('/save/status/active', (req, res) => {
+    const getActiveStatus = req.body.activeStatus
+    const getRandomizedIndex = req.body.randomizedIndex
+    const getRankLevel = req.body.rankLevel
+
+    connection.query(`UPDATE status SET active = ${getActiveStatus}, randomzing_index = ${getRandomizedIndex}, rank_level = '${getRankLevel}' WHERE id = 1`, (err, data) => {
+        if(err) {
+            console.log(err)
+            res.json({
+                code: '00401',
+                message: 'ไม่สามารถเข้าถึงฐานข้อมูล' // Access denied to DB or out of service
+            })
+        } else {
+            if(data.length === 0) {
+                res.json({
+                    code: '00404',
+                    message: 'บันทึกไม่สำเร็จ' // ไม่มีการบันทึกข้อมูลเกิดขึ้น / บันทึกข้อมูลไม่ได้
+                })
+            } else {
+                res.json({
+                    code: '00200',
+                    data: data
+                })
+            }
+        }
+    })
+})
+
+app.post('/save/award', (req, res) => {
     const getAwardId = req.body.awardId
     const getPersonId = req.body.personId
 
