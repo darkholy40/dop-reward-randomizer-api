@@ -197,7 +197,7 @@ app.get('/getawardslist', (req, res) => {
 })
 
 app.get('/get/activestatus', (req, res) => {
-    connection.query(`SELECT status.active, status.randomzing_index, status.rank_level FROM status WHERE status.id = 1`, (err, data) => {
+    connection.query(`SELECT status.active, status.randomzing_index, status.fullname, status.rank_level FROM status WHERE status.id = 1`, (err, data) => {
         if(err) {
             console.log(err)
             res.json({
@@ -217,9 +217,10 @@ app.get('/get/activestatus', (req, res) => {
 app.post('/save/status/active', (req, res) => {
     const getActiveStatus = req.body.activeStatus
     const getRandomizedIndex = req.body.randomizedIndex
+    const getFullname = req.body.fullname
     const getRankLevel = req.body.rankLevel
 
-    connection.query(`UPDATE status SET active = ${getActiveStatus}, randomzing_index = ${getRandomizedIndex}, rank_level = '${getRankLevel}' WHERE id = 1`, (err, data) => {
+    connection.query(`UPDATE status SET active = ${getActiveStatus}, randomzing_index = ${getRandomizedIndex}, fullname = '${getFullname}', rank_level = '${getRankLevel}' WHERE id = 1`, (err, data) => {
         if(err) {
             console.log(err)
             res.json({
